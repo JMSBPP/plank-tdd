@@ -162,6 +162,7 @@ Rules:
 
 - One `.btt` tree per define slice (that behavior’s success + invalid branches from the type note)
 - Path: `{working_dir}/types/<Type>/<Type>.btt` (same folder as the LaTeX note)
+- The type note and `src/types/<Type>.plk` **point at that `.btt`** (`/// .btt: …` / markdown link). That is the behavior source.
 - Root is the test contract (`FooTest` or `Foo::intro` if several trees share a file)
 - Conditions: `when` / `given`. Leaves: `it …`
 - Use `├` / `└` branches

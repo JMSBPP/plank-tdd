@@ -56,8 +56,9 @@ Do not jump to define/refine until the current phase’s gate is approved.
 
 1. `src/types/Foo.plk` — type module
 2. `{working_dir}/types/Foo/Foo.btt` — BTT next to the type note
-3. `test/types/Foo.t.sol` — **Bulloak-generated** suite (`scaffold` stdout → this path)
-4. `test/harness/types/FooHarness.plk` — deploy via `deployPlank`
+3. Type note + `Foo.plk` **point at that `.btt`** (behavior source)
+4. `test/types/Foo.t.sol` — **Bulloak-generated** suite (`scaffold` stdout → this path)
+5. `test/harness/types/FooHarness.plk` — deploy via `deployPlank`
 
 ## Details
 

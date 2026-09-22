@@ -140,6 +140,39 @@ From sibling `tdd`:
 
 Plank-specific RED: harness selector missing / stub returns 0 / revert. GREEN: fill the hole for that behavior only.
 
+## BTT / Bulloak (every define)
+
+Define **creates behavioral semantics**. That is a [Branching Tree Technique](https://www.getfoundry.sh/guides/branching-tree-technique) file, then [Bulloak](https://github.com/alexfertel/bulloak) generates the Foundry suite. This is not optional and not refine-only.
+
+```
+{working_dir}/types/<Type>/<Type>.md     algebra
+{working_dir}/types/<Type>/<Type>.btt    ← write this (one behavior)
+        │
+        │  bulloak scaffold <that.btt>   (stdout; do not -w)
+        ▼
+test/types/<Type>.t.sol                  ← generated suite
+        │
+        ▼
+harness ABI + assertions → fill the Plank hole
+```
+
+`bulloak scaffold -w` writes a `.t.sol` **next to the tree**. That would drop tests into `.spec/`. Always redirect stdout into `test/**`.
+
+Rules:
+
+- One `.btt` tree per define slice (that behavior’s success + invalid branches from the type note)
+- Path: `{working_dir}/types/<Type>/<Type>.btt` (same folder as the LaTeX note)
+- Root is the test contract (`FooTest` or `Foo::intro` if several trees share a file)
+- Conditions: `when` / `given`. Leaves: `it …`
+- Use `├` / `└` branches
+- **Do not** hand-write a define-phase `*.t.sol`. Scaffold, then wire `PlankTestBase` and the harness ABI
+- Do not rename Bulloak-generated test functions to dodge `bulloak check`
+- If the host Bulloak pin only accepts `.tree`, keep the same basename and the same contents (`.btt` remains the skill name)
+- `bulloak check` pairs `<name>.tree` with `<name>.t.sol` by basename. If the pin requires the same directory, do not move the `.btt`; keep the split and treat `check` as optional until the host CI copies or the pin grows an output path
+- Follow the host validation rule (often push → CI). `bulloak scaffold` is generation, not a local proof
+
+Missing Bulloak on the host: say so; do not silently skip to a hand-rolled suite. Adding Bulloak to CI is a host concern (see the host `TODO` / `AGENTS`).
+
 ## Anti-patterns
 
 - New type without searching `std/` and host `src/types/`
@@ -149,5 +182,6 @@ Plank-specific RED: harness selector missing / stub returns 0 / revert. GREEN: f
 - Bodies before algebra agreement
 - Skipping LaTeX on the type note
 - Bulk tests before any type exists
+- Hand-rolling a define-phase suite instead of `.btt` + Bulloak
 - Omitting `types.toml` or `compile.toml`
 - Local build as proof of correctness when the host forbids it

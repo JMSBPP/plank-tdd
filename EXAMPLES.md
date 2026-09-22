@@ -31,7 +31,26 @@ const io = fn (tf: TokenFlow()) IO(TokenFlow()) {
 /// hole: run_io not defined this phase
 ```
 
-## Define phase — one behavior
+## Define phase — `.btt` then Bulloak
+
+Every define: write the tree, scaffold, then fill the hole. Example for `intro` (success + one invalid branch):
+
+```
+FooTest
+├── when L is zero
+│   └── it should revert ZeroLiquidity
+└── when L and sqrt_p are nonzero and σ fits u88
+    └── it should return tick Tick(√p) and σ
+```
+
+```bash
+bulloak scaffold .spec/REALIZED_VOLATILITY.spec/types/Foo/Foo.btt \
+  > test/types/Foo.t.sol
+```
+
+Do not pass `-w` (that would write `Foo.t.sol` under `.spec/`). Wire `PlankTestBase` + harness ABI into `test/types/Foo.t.sol`. Keep Bulloak’s function names.
+
+## Define phase — one behavior (Plank hole)
 
 Behavior: `run(io(amt, +))` transfers `from → to`.
 
@@ -62,12 +81,10 @@ Fixture imports **Transfer Mod** only; `balanceOf` reads the same ERC-8042 slot.
 5. “Operations and laws?”
 6. “Kind: plain / generic / dependent / indexed?”
 7. “Eff row? If none, this is a pure type — no IO.”
-8. “Which single behavior should the first harness test lock?”
+8. “Which single behavior should the first `.btt` lock?”
 
 Only after (2) and (4)–(7): create notes and holes.
 
 ## Test name
 
-Name tests after **behavior**, not after hole names:
-
-`test__beh__run_positive_transfers_from_to`
+Leaves in the `.btt` name the behavior (`it should …`). Bulloak generates the Solidity identifiers. Do not invent `test__beh__*` names that the tree does not contain.

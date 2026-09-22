@@ -20,7 +20,7 @@ ln -sf ~/.cursor/skills/plank-tdd/commands/plank-refine.md ~/.cursor/commands/pl
 | File | Role |
 |------|------|
 | [SKILL.md](SKILL.md) | Main workflow (required) |
-| [REFERENCE.md](REFERENCE.md) | Brady, IO pattern, kinds, `types.toml`, Compose |
+| [REFERENCE.md](REFERENCE.md) | Brady, IO pattern, kinds, `types.toml`, Compose, BTT/Bulloak |
 | [EXAMPLES.md](EXAMPLES.md) | LaTeX / holes / harness templates |
 | [commands/](commands/) | Slash-command stubs |
 

@@ -9,10 +9,10 @@
 \begin{aligned}
 \mathrm{IO} &:: \mathrm{type} \to \mathrm{type} \\
 \mathrm{io} &:: T \to \mathrm{IO}(T) \\
-\mathrm{run} &:: \mathrm{IO}(T) \to \mathrm{Outcome} \\
+\mathrm{run} &:: \mathrm{IO}(T) \to \mathrm{Option}(\cdot) \\
 \mathrm{View} &= \mathrm{staticcall} \\
 \mathrm{Xfer} &= \mathrm{call} \\
-\mathrm{Outcome} &= \mathrm{success} \mid \mathrm{revert}
+\mathrm{None} &= \mathrm{revert},\ \mathrm{Some} = \mathrm{success}
 \end{aligned}
 \]
 ```
@@ -56,14 +56,15 @@ Fixture imports **Transfer Mod** only; `balanceOf` reads the same ERC-8042 slot.
 ## Session skeleton (AskQuestions)
 
 1. “Working directory? `[.spec/]` — Plank root? `[src/types/]`”
-2. “Domain key for `types.toml`?”
-3. “Carriers of this algebra?”
-4. “Operations and laws?”
-5. “Kind: plain / generic / dependent / indexed?”
-6. “Eff row? If none, this is a pure type — no IO.”
-7. “Which single behavior should the first harness test lock?”
+2. “Std/host types that already mean this? (search `std/` first)”
+3. “Domain key for `types.toml`?”
+4. “Carriers of this algebra?”
+5. “Operations and laws?”
+6. “Kind: plain / generic / dependent / indexed?”
+7. “Eff row? If none, this is a pure type — no IO.”
+8. “Which single behavior should the first harness test lock?”
 
-Only after (3)–(6): create notes and holes.
+Only after (2) and (4)–(7): create notes and holes.
 
 ## Test name
 

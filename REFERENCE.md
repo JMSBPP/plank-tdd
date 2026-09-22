@@ -18,6 +18,31 @@ Treat the **algebra** (carriers, operations, laws) as the abstraction clients ca
 
 Reference: Sandy Maguire, *Algebra-Driven Design*. Use a local copy if you have one; do not paste book text into this repo.
 
+## Std first (mandatory before a new type)
+
+Search **`lib/plank-monorepo/std/`** (and host **`src/types/`**) for types that already have the semantics. List candidates on the type note / `types.toml` `notes`. Implement a new type only after rejecting each candidate.
+
+There is **no** `Result` / `Either` / `Outcome` in std today.
+
+| Need | Look first |
+|------|------------|
+| Presence / absence, optional payload | `std::option::{Option, Some, None, unwrap}` |
+| Abort when a predicate fails | `std::error::require` (void; `@evm_revert`) |
+| Call success bit | `bool` from `@evm_call` / `@evm_staticcall` |
+| Address | `std::core::addr` |
+| Checked arithmetic | `std::core::ops` (`checked_mul`, `neg_u256`, …) |
+
+### Example — `Outcome = success | revert`
+
+| Candidate | Semantics already there? | Fit |
+|-----------|--------------------------|-----|
+| `Option(T)` | `Some` / `None`; `unwrap` reverts | **Yes** — `None` = revert, `Some` = success (payload `T` if returndata matters, else a unit) |
+| `bool` | EVM call flag | Same information as `{ ok: bool }`, no constructors |
+| `require` | Reverts; returns nothing | Not a returned outcome |
+| Hand-rolled `Outcome { ok }` | — | **Reject** unless Option/bool are rejected in AskQuestions |
+
+Default: reuse `Option`. A domain `Outcome` wrapper is a refine only if the algebra needs names `success`/`revert` that Option cannot carry.
+
 ## IO side-effect modules
 
 A Plank type that touches the EVM is a **description**, then an **IO** of that description, then **run**.
@@ -25,10 +50,10 @@ A Plank type that touches the EVM is a **description**, then an **IO** of that d
 ```
 IO      : type → type
 io      : T → IO(T)
-run     : IO(T) → Outcome
+run     : IO(T) → Outcome   // prefer std::option::Option unless rejected
 View    = staticcall
 Xfer    = call
-Outcome = success | revert
+Outcome = success | revert  // Option(T) or bool — not a new std type
 ```
 
 Rules:
@@ -117,6 +142,8 @@ Plank-specific RED: harness selector missing / stub returns 0 / revert. GREEN: f
 
 ## Anti-patterns
 
+- New type without searching `std/` and host `src/types/`
+- Hand-rolled `Outcome`/`Result` when `Option` already fits
 - Void “do the effect” functions
 - Importing unused Compose Mods (Approve/Mint when Eff is Transfer + balanceOf)
 - Bodies before algebra agreement

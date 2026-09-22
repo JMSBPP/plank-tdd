@@ -12,15 +12,17 @@ Slash commands select the phase: `/plank-type`, `/plank-define`, `/plank-refine`
 ## Quick start
 
 1. Ask working directory (default **`.spec/`**) and Plank type root (default **`src/types/`**)
-2. Ask algebra of the next type (one question at a time) before any body
-3. Write LaTeX on the type note; register **`types.toml`**
-4. Phase: **type** (signatures / holes) → **define** (one behavior) → **refine** (laws + Eff)
-5. If the type has effects: follow the [IO pattern](REFERENCE.md#io-side-effect-modules)
+2. **Explore std / host types** that already carry the needed semantics — do this before proposing a new type
+3. Ask algebra of the next type (one question at a time) before any body
+4. Write LaTeX on the type note; register **`types.toml`**
+5. Phase: **type** (signatures / holes) → **define** (one behavior) → **refine** (laws + Eff)
+6. If the type has effects: follow the [IO pattern](REFERENCE.md#io-side-effect-modules)
 
 ## Iron laws
 
 - No function bodies before the **algebra** is agreed
-- Side-effecting work is `io` then `run` → `Outcome`; never a void command
+- **Std first:** search `lib/plank-monorepo/std/` and host `src/types/` for a type that already has the semantics. Record candidates. A new type is allowed only if none fit
+- Side-effecting work is `io` then `run` → an **outcome** type (prefer std); never a void command
 - Import **only** the EVM/Compose modules the `Eff` row needs
 - Holes first; never horizontal “all tests then all code”
 - Tests use the **public harness ABI** only
@@ -34,6 +36,7 @@ Ask **one** question at a time. Cover at least:
 - Working directory (default `.spec/`) and Plank root (default `src/types/`)
 - Domain / `types.toml` section
 - Algebra: carriers, operations, laws, invalid states
+- **Std candidates:** which existing std/host types already mean this? Why reuse or reject each?
 - Type kind: plain | generic | dependent | indexed | other
 - Does it have **Eff**? If yes: View / Xfer / other, and which modules
 - Next single behavior to lock
@@ -42,7 +45,7 @@ Ask **one** question at a time. Cover at least:
 
 | Command | Phase | Allowed |
 |---------|--------|---------|
-| `/plank-type` | Type | Note, `types.toml`, signatures, holes. No bodies. |
+| `/plank-type` | Type | Std search, note, `types.toml`, signatures, holes. No bodies. |
 | `/plank-define` | Define | Fill holes for **one** behavior; harness + one test slice |
 | `/plank-refine` | Refine | Tighten types/laws; drop unused modules; set `refined = true` |
 
@@ -56,6 +59,6 @@ Do not jump to define/refine until the current phase’s gate is approved.
 
 ## Details
 
-- IO pattern, kinds, `types.toml`: [REFERENCE.md](REFERENCE.md)
+- Std-first + IO pattern, kinds, `types.toml`: [REFERENCE.md](REFERENCE.md)
 - LaTeX / IO / harness templates: [EXAMPLES.md](EXAMPLES.md)
 - Sibling skills: `idris-tdd` (spec notes), `tdd` (vertical slices), type-driven-development (invariants before impl)

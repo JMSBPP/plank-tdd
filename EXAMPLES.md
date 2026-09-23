@@ -31,6 +31,30 @@ const io = fn (tf: TokenFlow()) IO(TokenFlow()) {
 /// hole: run_io not defined this phase
 ```
 
+## Define phase — update the type note (math headings)
+
+After filling a hole, extend `StateView.md`-style notes:
+
+```markdown
+### \(\mathrm{intro}_{\mathrm{anchor}}
+::
+\mathrm{Pool}(\mathrm{Algebra})
+\to
+\mathrm{StateViewAnchor}\)
+
+\[
+\begin{aligned}
+\mathrm{intro}_{\mathrm{anchor}}(\mathrm{pool})
+&=
+\bigl(\mathrm{pool},\; t_{\mathrm{init}} \leftarrow \mathrm{timestamp}\bigr)
+\end{aligned}
+\]
+
+Plank: `intro_anchor`. BTT: [StateViewIntroAnchor.btt](StateViewIntroAnchor.btt).
+```
+
+Same commit slice as `.btt` + harness + Plank body (maintainer approve before commit on host repos).
+
 ## Define phase — `.btt` then Bulloak
 
 Every define: write the tree, scaffold, then fill the hole. Example for `intro` (success + one invalid branch):

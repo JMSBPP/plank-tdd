@@ -140,6 +140,73 @@ From sibling `tdd`:
 
 Plank-specific RED: harness selector missing / stub returns 0 / revert. GREEN: fill the hole for that behavior only.
 
+## Type note headings (math notation)
+
+The type note (`{working_dir}/types/<Type>/<Type>.md`) is the **authoritative algebra**. Host projects may treat the checked-in note as the respected design state (e.g. `StateView.md` on the `type/StateView` track). Agents must **not** replace maintainer notation without approval.
+
+### Phases
+
+| Phase | What goes on the note |
+|-------|----------------------|
+| **Type** | Carriers, main `\[ \begin{aligned} … \]` blocks, `types.toml` kind/laws, std-reuse table, holes listed as signatures inside aligned math |
+| **Define** | **Add or extend** a section per locked behavior: math **title/subtitle**, then laws block, BTT link, Plank/harness names |
+| **Refine** | Tighten laws, Eff row, `refined = true`; optional `> KEEP THIS NOTATION` anchors |
+
+### Document title
+
+```markdown
+# [TYPE:: STATE_VIEW](MAIN_REF# MODEL)
+```
+
+### Major sections (Eff, cross-cutting)
+
+Use `##` + roman name when the block is not a single operation (e.g. Eff list):
+
+```markdown
+## SIDE_EFFECTS
+\[
+\begin{aligned}
+\mathrm{Eff}^{\mathrm{StateView}} &= [\mathrm{ERC20View},\,\mathrm{Xfer},\,\mathrm{Swap}] \\
+\mathrm{Xfer} &\subset \mathrm{Swap}
+\end{aligned}
+\]
+```
+
+### Operation subtitles (define phase) — **custom math headings**
+
+Each **defined operation** gets a `###` whose **visible title is the type signature**, not plain English. Use **inline math split across lines** (renderer-tolerant pattern):
+
+```markdown
+### \(\mathrm{intro}_{\mathrm{anchor}}
+::
+\mathrm{Pool}(\mathrm{Algebra})
+\to
+\mathrm{StateViewAnchor}\)
+
+\[
+\begin{aligned}
+\mathrm{intro}_{\mathrm{anchor}}(\mathrm{pool}) &= \bigl(\mathrm{pool},\; t_{\mathrm{init}} \leftarrow \mathrm{timestamp}\bigr) \\
+\mathrm{pool\_word}(\mathrm{pool}) = 0 &\Longrightarrow \mathrm{revert}\ \mathtt{ZeroPool}
+\end{aligned}
+\]
+```
+
+Rules:
+
+- **`###`** opens the operation; **`::`** and arrows **`→`** live in the same signature block as in the main algebra (repeat the **same** judgment, do not drift).
+- Follow immediately with a display **`\[ aligned \]`** block: laws, reverts, and define-slice facts (BTT name, no Eff if pure anchor).
+- Plank name mapping: optional short prose line or `### IO algebra (Plank names)` with `io` / `run` / `Outcome` when Eff is involved.
+- For operations already declared in the main carrier block, you may add `> KEEP THIS NOTATION` and repeat the **`###`** signature header before the deeper step/cell laws (see `step_K` in StateView).
+
+### Anti-patterns
+
+- English-only `### Intro` with no signature line after a define slice lands
+- Prose-only define docs with no aligned laws block
+- Invalid TeX (`\forall_\K`, commands inside `\text{}`, unclosed `\[` )
+- Rewriting maintainer blockquotes (`> DO NOT ERASE`, design notes) while filling define sections
+
+Canonical host example: `cfmm-vol-markets` → `.spec/REALIZED_VOLATILITY.spec/types/StateView/StateView.md`.
+
 ## BTT / Bulloak (every define)
 
 Define **creates behavioral semantics**. That is a [Branching Tree Technique](https://www.getfoundry.sh/guides/branching-tree-technique) file, then [Bulloak](https://github.com/alexfertel/bulloak) generates the Foundry suite. This is not optional and not refine-only.
@@ -161,7 +228,8 @@ harness ABI + assertions → fill the Plank hole
 Rules:
 
 - One `.btt` tree per define slice (that behavior’s success + invalid branches from the type note)
-- Path: `{working_dir}/types/<Type>/<Type>.btt` (same folder as the LaTeX note)
+- Path: `{working_dir}/types/<Type>/<Type>.btt` or `{Type}<Behavior>.btt` (same folder as the LaTeX note)
+- **Update `{Type}.md`** in the same slice: add the operation’s **math heading** + laws (see [Type note headings](#type-note-headings-math-notation))
 - The type note and `src/types/<Type>.plk` **point at that `.btt`** (`/// .btt: …` / markdown link). That is the behavior source.
 - Root is the test contract (`FooTest` or `Foo::intro` if several trees share a file)
 - Conditions: `when` / `given`. Leaves: `it …`

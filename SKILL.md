@@ -16,8 +16,9 @@ CI failure → `/plank-ci-refactor` (mission/policy: [AGENTS.md](AGENTS.md)).
 2. **Explore std / host types** that already carry the needed semantics — do this before proposing a new type
 3. Ask algebra of the next type (one question at a time) before any body
 4. Write LaTeX on the type note; register **`types.toml`**
-5. Phase: **type** (signatures / holes) → **define** (one behavior: `.btt` → Bulloak suite → fill hole) → **refine** (laws + Eff)
+5. Phase: **type** (signatures / holes) → **define** (one behavior: `.btt` → Bulloak suite → fill hole → **update type note**) → **refine** (laws + Eff)
 6. If the type has effects: follow the [IO pattern](REFERENCE.md#io-side-effect-modules)
+7. On **every define**, extend the type **`.md`** with the [math heading notation](REFERENCE.md#type-note-headings-math-notation) for that operation (signature subtitle + `aligned` laws). The note is the living algebra; do not leave define code-only.
 
 ## Iron laws
 
@@ -48,7 +49,7 @@ Ask **one** question at a time. Cover at least:
 | Command | Phase | Allowed |
 |---------|--------|---------|
 | `/plank-type` | Type | Std search, note, `types.toml`, signatures, holes. No bodies. |
-| `/plank-define` | Define | Fill holes for **one** behavior; write `.btt`; Bulloak generates the suite |
+| `/plank-define` | Define | Fill holes for **one** behavior; write `.btt`; Bulloak suite; **update type note** (math headings + laws for that op) |
 | `/plank-refine` | Refine | Tighten types/laws; drop unused modules; set `refined = true` |
 | `/plank-ci-refactor` | CI loop | Explicit CI failure only → `/request-refactor-plan` → slices → push → watch |
 

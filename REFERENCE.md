@@ -381,6 +381,83 @@ For `/plank-type`, `/plank-define`, and `/plank-refine`:
 Do not mark `complete` merely because implementation files exist. Do not
 advance a state transition belonging to a different child slice.
 
+## GitHub PR review from markers
+
+Maintainer feedback often starts as **local** source comments:
+
+| Marker | Meaning |
+|--------|---------|
+| `// fix:` | Required change before the slice is accepted |
+| `// NOTE:` | Constraint / convention; may be deferred if labeled |
+| `// TODO:` | Follow-up work; usually deferred unless the review scopes it in |
+
+Those markers are a drafting surface only. **GitHub counts a code review when a
+Pull Request Review exists** (`GET .../pulls/{n}/reviews`) with optional inline
+threads (`.../pulls/{n}/comments`). Issue comments and uncommitted `// fix:`
+lines do **not** satisfy that.
+
+### Procedure (`/plank-code-review`)
+
+1. Resolve the track PR (from `PLANK-STATE.md` `pr:`, branch, or args).
+2. Read `head.sha` — inline comments must target that commit’s file lines.
+3. Collect markers from the working tree; for each, find the **nearest committed
+   line** the marker annotates (use `git show HEAD:path` line numbers). Do not
+   post a review against marker-only lines that exist only locally.
+4. Classify: actionable vs deferred. Put the classification in the review body.
+5. Submit **one** review:
+
+```bash
+COMMIT=$(gh api repos/$OWNER/$REPO/pulls/$N --jq .head.sha)
+gh api --method POST "repos/$OWNER/$REPO/pulls/$N/reviews" --input - <<'JSON'
+{
+  "commit_id": "REPLACE_WITH_HEAD_SHA",
+  "event": "COMMENT",
+  "body": "## Maintainer review\n\n…summary…",
+  "comments": [
+    {
+      "path": "test/harness/types/FooHarness.plk",
+      "line": 86,
+      "body": "fix: …"
+    },
+    {
+      "path": "test/types/Foo.t.sol",
+      "start_line": 68,
+      "line": 81,
+      "body": "NOTE: …\n\nfix: …"
+    }
+  ]
+}
+JSON
+```
+
+- Prefer `event: "COMMENT"`. Use `REQUEST_CHANGES` only when the reviewer is
+  **not** the PR author (GitHub often rejects self-`REQUEST_CHANGES`).
+- Use `path` + `line` (1-based, right side of the PR diff). For a range, set
+  `start_line` and `line`. Do **not** rely on legacy `position` unless the
+  host API forces it.
+- `-f comments[][side]=RIGHT` via form fields is unreliable; prefer `--input`
+  JSON as above.
+
+6. Verify: `gh api .../pulls/$N/comments` shows the new threads; record
+   `html_url` of the review.
+7. Strip local markers (`git checkout -- <touched files>`). Markers must not
+   remain as committed source noise unless the maintainer explicitly wants a
+   permanent comment.
+8. Optional GSD: append the review URL under acceptance / transition log for
+   the open slice; do not flip `complete` from a review alone.
+9. Implementation follows **receiving-code-review** (clarify → verify → patch →
+   chunk approve → commit → host CI). Re-opened acceptance after source changes
+   needs a fresh `ci_pending`.
+
+### Anti-patterns
+
+- Leaving `// fix:` in the tree and calling that “reviewed”
+- Top-level PR issue comment without a Review object when the maintainer asked
+  for a code review that counts on GitHub
+- Committing marker-only diffs
+- Implementing from markers before they exist as GitHub review threads (unless
+  the maintainer explicitly waives promotion)
+
 ### Recovery and reconciliation
 
 On resume, compare `PLANK-STATE.md` with repository and GitHub evidence:

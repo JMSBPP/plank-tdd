@@ -1,6 +1,6 @@
 ---
 name: plank-tdd
-description: Type-driven Plank development — Brady type/define/refine, types.toml, IO(T), BTT (.btt) + Bulloak-generated Foundry tests on every define, state-only GSD progress reporting via /plank-progress, and CI-failure continuous refactor via /plank-ci-refactor + /request-refactor-plan. Use when writing or refining .plk types, implementing TokenFlow/IO/Xfer/View effects, checking Plank slice progress, fixing Plank-related CI failures, or when the user runs /plank-type, /plank-define, /plank-refine, /plank-progress, or /plank-ci-refactor.
+description: Type-driven Plank development — Brady type/define/refine, types.toml, IO(T), BTT (.btt) + Bulloak-generated Foundry tests on every define, maintainer //fix|NOTE|TODO markers promoted to GitHub Pull Request Reviews via /plank-code-review, state-only GSD progress reporting via /plank-progress, and CI-failure continuous refactor via /plank-ci-refactor + /request-refactor-plan. Use when writing or refining .plk types, implementing TokenFlow/IO/Xfer/View effects, checking Plank slice progress, promoting inline review markers to GitHub, fixing Plank-related CI failures, or when the user runs /plank-type, /plank-define, /plank-refine, /plank-code-review, /plank-progress, or /plank-ci-refactor.
 ---
 
 # Plank TDD (type → define → refine)
@@ -8,7 +8,20 @@ description: Type-driven Plank development — Brady type/define/refine, types.t
 Hybrid of Brady **type, define, refine** and vertical behavioral TDD. Algebra leads. Side effects go through **IO(T)**, never void. **Heavy AskQuestions** — do not invent the algebra.
 
 Slash commands select the phase: `/plank-type`, `/plank-define`, `/plank-refine`.
+Maintainer review markers → `/plank-code-review` (GitHub PR Review).
 CI failure → `/plank-ci-refactor` (mission/policy: [AGENTS.md](AGENTS.md)).
+
+## Maintainer markers → GitHub PR review
+
+Working-tree `// fix:`, `// NOTE:`, `// TODO:` (on harness/tests/impl) are **not** the review of
+record. Promote them to a GitHub **Pull Request Review** so the track PR has a real
+`reviews[]` entry with inline threads — that is what counts as code review on GitHub.
+
+When the maintainer says the markers are a code review (or runs `/plank-code-review`):
+
+1. Do **not** treat markers as already-approved patches; do **not** commit them as permanent source comments.
+2. Follow [REFERENCE.md — GitHub PR review from markers](REFERENCE.md#github-pr-review-from-markers): map each marker to a line on the PR tip commit, submit one review via the Reviews API, verify inline comments exist, strip local markers.
+3. Then run **receiving-code-review** on that GitHub review (clarify → implement → chunk approve → CI).
 
 ## GSD state adapter — tracking only
 
@@ -106,6 +119,7 @@ Ask **one** question at a time. Cover at least:
 | `/plank-define` | Define | Fill holes for **one** behavior; write `.btt`; Bulloak suite; **update type note** (math headings + laws for that op) |
 | `/plank-refine` | Refine | Tighten types/laws; drop unused modules; set `refined = true` |
 | `/plank-progress` | State report | Report/reconcile approved Plank child state using GSD files; never route or execute |
+| `/plank-code-review` | Review promote | Working-tree `fix`/`NOTE`/`TODO` markers → GitHub Pull Request Review on the track PR |
 | `/plank-ci-refactor` | CI loop | Explicit CI failure only → `/request-refactor-plan` → slices → push → watch |
 
 Do not jump to define/refine until the current phase’s gate is approved.

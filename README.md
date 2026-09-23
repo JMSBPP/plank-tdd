@@ -11,13 +11,17 @@ ln -sf ~/.cursor/skills/plank-tdd/commands/plank-type.md ~/.cursor/commands/plan
 ln -sf ~/.cursor/skills/plank-tdd/commands/plank-define.md ~/.cursor/commands/plank-define.md
 ln -sf ~/.cursor/skills/plank-tdd/commands/plank-refine.md ~/.cursor/commands/plank-refine.md
 ln -sf ~/.cursor/skills/plank-tdd/commands/plank-progress.md ~/.cursor/commands/plank-progress.md
+ln -sf ~/.cursor/skills/plank-tdd/commands/plank-code-review.md ~/.cursor/commands/plank-code-review.md
 ln -sf ~/.cursor/skills/plank-tdd/commands/plank-ci-refactor.md ~/.cursor/commands/plank-ci-refactor.md
 ```
 
 - **Skill:** agent may auto-load `SKILL.md` from description match.
-- **Slash commands:** `/plank-type`, `/plank-define`, `/plank-refine`, `/plank-progress`, `/plank-ci-refactor`.
+- **Slash commands:** `/plank-type`, `/plank-define`, `/plank-refine`, `/plank-code-review`, `/plank-progress`, `/plank-ci-refactor`.
 - **Mission / CI policy:** [AGENTS.md](AGENTS.md) — CI failure → plan via
   `/request-refactor-plan` → slices → push → watch.
+- **Code review:** maintainer annotates with `// fix:` / `// NOTE:` / `// TODO:`;
+  `/plank-code-review` promotes those markers to a GitHub Pull Request Review on the
+  track PR (see [REFERENCE.md](REFERENCE.md#github-pr-review-from-markers)).
 
 ## GSD state adapter
 

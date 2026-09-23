@@ -254,3 +254,156 @@ Missing Bulloak on the host: say so; do not silently skip to a hand-rolled suite
 - Hand-rolling a define-phase suite instead of `.btt` + Bulloak
 - Omitting `types.toml` or `compile.toml`
 - Local build as proof of correctness when the host forbids it
+
+## GSD state-only adapter
+
+### Trigger and ownership
+
+Activate this adapter only when all of these are true:
+
+1. a maintainer-approved plan exists;
+2. the plan is decomposed into child slices;
+3. a child slice is assigned to `/plank-type`, `/plank-define`, or
+   `/plank-refine`; and
+4. the plan declares GSD tracking.
+
+The approved plan owns slice scope and order. Plank TDD owns algebra, Brady
+phase gates, BTT/TDD, implementation, code approval, and CI acceptance. GSD
+owns none of those decisions; its files are a durable progress ledger.
+
+### Fail-closed prerequisites
+
+Before starting the first tracked slice, require both:
+
+- `.planning/ROADMAP.md`
+- `.planning/STATE.md`
+
+If either is absent, stop and ask the maintainer to initialize GSD. Do not
+bootstrap GSD, create replacement top-level files, or silently run untracked.
+
+### Phase registration and mapping
+
+Register exactly one GSD phase for each approved child slice. Preserve the
+host's phase numbering and ROADMAP/STATE formatting. The phase record must
+identify:
+
+- child issue or PR, when assigned;
+- behavior name;
+- approved-plan path or URL;
+- Brady tag: `type`, `define`, or `refine`;
+- phase-local directory and `PLANK-STATE.md`.
+
+Do not combine child slices merely because they share a type, and do not split
+an approved child slice through this adapter. A scope change returns to the
+maintainer/approved-plan process.
+
+### Lifecycle
+
+The only Plank state progression is:
+
+```text
+pending → in_progress → code_approved → committed → ci_pending → complete
+                                                               ↘ blocked
+```
+
+`blocked` may be entered from any active state. Recovery from `blocked`
+returns to the last satisfied state, records the resolution, and then resumes
+forward progression. Never infer approval, commit, or CI success from elapsed
+time or file presence.
+
+Transition meaning:
+
+| Status | Required evidence |
+|---|---|
+| `pending` | Approved child slice registered |
+| `in_progress` | Matching Plank command has started the slice |
+| `code_approved` | Maintainer approved every changed code/documentation chunk required by the host |
+| `committed` | Commit SHA recorded |
+| `ci_pending` | Branch pushed and CI URL recorded |
+| `complete` | Host-authoritative CI passed and slice acceptance criteria are met |
+| `blocked` | Concrete blocker and prior status recorded |
+
+Synchronize the phase-local file first, then update ROADMAP and STATE summaries
+in the same editing operation. Use targeted direct writes; do not invoke GSD
+workflow skills or commands.
+
+### Phase-local `PLANK-STATE.md`
+
+Store this file in the existing phase directory:
+`.planning/phases/<phase-directory>/PLANK-STATE.md`.
+
+```markdown
+---
+plank_state_version: 1
+phase: "12"
+slice: "refine/Example"
+plank_phase: "refine"
+status: "in_progress"
+issue: "https://github.com/org/repo/issues/123"
+pr: ""
+approved_plan: "docs/plans/example.md"
+behavior: "Describe the approved child behavior"
+commit: ""
+ci: ""
+blocked_reason: ""
+blocked_from: ""
+updated_at: "2026-09-23T00:00:00Z"
+---
+
+# Plank TDD State
+
+## Artifacts
+- `path/to/artifact`
+
+## Transition log
+- `2026-09-23T00:00:00Z` — `pending → in_progress`
+```
+
+Use empty strings for unknown scalar values. Keep artifact paths
+repo-relative. Append, rather than rewrite, transition history.
+
+### Command synchronization
+
+For `/plank-type`, `/plank-define`, and `/plank-refine`:
+
+1. At command start, verify the phase matches the approved child slice and
+   transition `pending → in_progress`.
+2. As artifact paths become known, append them without changing scope.
+3. After the maintainer's final chunk approval, record `code_approved`.
+4. After commit, record the SHA and `committed`.
+5. After push, record the CI URL and `ci_pending`.
+6. After host-authoritative CI and acceptance criteria pass, record
+   `complete`.
+7. On an unresolved dependency, approval denial, failed CI awaiting a new
+   approved action, or access failure, record `blocked` with the reason and
+   previous status.
+
+Do not mark `complete` merely because implementation files exist. Do not
+advance a state transition belonging to a different child slice.
+
+### Recovery and reconciliation
+
+On resume, compare `PLANK-STATE.md` with repository and GitHub evidence:
+
+- a recorded commit must resolve in the current repository;
+- `ci_pending` must have a pushed commit and CI URL;
+- `complete` must retain passing host-authoritative CI evidence;
+- ROADMAP and STATE summaries must agree with the phase-local status.
+
+If evidence is missing, move to `blocked`; do not fabricate it. If summaries
+drift but phase-local evidence is valid, repair ROADMAP and STATE and append a
+reconciliation entry. If multiple phase files claim the same child slice,
+stop for maintainer resolution.
+
+### Forbidden GSD surface
+
+Never use this adapter to:
+
+- invoke GSD planning, execution, discussion, review, verification, or
+  `progress --next`;
+- generate GSD `PLAN.md`, `SUMMARY.md`, research, context, review, or
+  checkpoint artifacts;
+- dispatch GSD agents;
+- select, reorder, decompose, approve, execute, or validate Plank work;
+- replace the approved plan, Plank command rules, AskQuestion approvals,
+  BTT/Bulloak evidence, or host CI gate.

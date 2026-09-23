@@ -10,15 +10,53 @@ Hybrid of Brady **type, define, refine** and vertical behavioral TDD. Algebra le
 Slash commands select the phase: `/plank-type`, `/plank-define`, `/plank-refine`.
 CI failure → `/plank-ci-refactor` (mission/policy: [AGENTS.md](AGENTS.md)).
 
+## GSD state adapter — tracking only
+
+When an **approved plan** is decomposed into child slices for `type`, `define`, or
+`refine`, mirror each child slice as one GSD phase. GSD is a durable state ledger
+only; Brady + Plank TDD remain the workflow authority.
+
+Before work on a tracked slice:
+
+1. Require existing `.planning/ROADMAP.md` and `.planning/STATE.md`. If either is
+   absent, stop and ask the maintainer to initialize GSD state.
+2. Locate or register one phase for the approved child slice, tagged
+   `plank_phase: type|define|refine`.
+3. Create/update the phase-local `PLANK-STATE.md` described in
+   [REFERENCE.md](REFERENCE.md#gsd-state-only-adapter).
+4. Synchronize status at material transitions:
+   `pending → in_progress → code_approved → committed → ci_pending → complete|blocked`.
+
+Allowed GSD surface:
+
+- `.planning/ROADMAP.md`
+- `.planning/STATE.md`
+- `.planning/phases/<phase>/PLANK-STATE.md`
+
+Write targeted state updates directly while preserving the host files' existing
+format. Do **not** invoke GSD workflows or agents.
+
+Hard boundary — the adapter MUST NOT:
+
+- invoke GSD plan, execute, review, verify, discuss, or progress-routing commands;
+- create GSD `PLAN.md`, `SUMMARY.md`, research, context, checkpoint, or review artifacts;
+- let GSD select, reorder, approve, execute, or verify a Plank slice;
+- replace the host plan, AskQuestion gates, BTT/Bulloak flow, code-chunk approval,
+  or host CI authority.
+
+If no approved plan is decomposed into child slices, run Plank TDD normally without
+creating GSD tracking state.
+
 ## Quick start
 
-1. Ask working directory (default **`.spec/`**) and Plank type root (default **`src/types/`**)
-2. **Explore std / host types** that already carry the needed semantics — do this before proposing a new type
-3. Ask algebra of the next type (one question at a time) before any body
-4. Write LaTeX on the type note; register **`types.toml`**
-5. Phase: **type** (signatures / holes) → **define** (one behavior: `.btt` → Bulloak suite → fill hole → **update type note**) → **refine** (laws + Eff)
-6. If the type has effects: follow the [IO pattern](REFERENCE.md#io-side-effect-modules)
-7. On **every define**, extend the type **`.md`** with the [math heading notation](REFERENCE.md#type-note-headings-math-notation) for that operation (signature subtitle + `aligned` laws). The note is the living algebra; do not leave define code-only.
+1. If the approved plan has child slices, initialize/sync the state-only GSD phase.
+2. Ask working directory (default **`.spec/`**) and Plank type root (default **`src/types/`**)
+3. **Explore std / host types** that already carry the needed semantics — do this before proposing a new type
+4. Ask algebra of the next type (one question at a time) before any body
+5. Write LaTeX on the type note; register **`types.toml`**
+6. Phase: **type** (signatures / holes) → **define** (one behavior: `.btt` → Bulloak suite → fill hole → **update type note**) → **refine** (laws + Eff)
+7. If the type has effects: follow the [IO pattern](REFERENCE.md#io-side-effect-modules)
+8. On **every define**, extend the type **`.md`** with the [math heading notation](REFERENCE.md#type-note-headings-math-notation) for that operation (signature subtitle + `aligned` laws). The note is the living algebra; do not leave define code-only.
 
 ## Iron laws
 
@@ -31,6 +69,7 @@ CI failure → `/plank-ci-refactor` (mission/policy: [AGENTS.md](AGENTS.md)).
 - Tests use the **public harness ABI** only (fill the generated file; keep Bulloak names)
 - Add every new `.plk` to the domain `compile.toml`
 - Follow the host repo’s validation rule (CI vs local); do not invent a toolchain
+- GSD records state only; it never supplies Plank planning, execution, review, or verification semantics
 
 ## AskQuestions (mandatory)
 

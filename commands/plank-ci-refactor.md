@@ -23,6 +23,9 @@ effectiveness). Do not invent a parallel CI policy.
    YAML / cache / image optimizations are their own plan slices: try = branch/PR +
    measure wall-clock from Actions; cite GitHub Actions docs; never silently change
    `develop-gate` required checks.
+   If the approved plan declares GSD tracking, the selected Plank command may
+   synchronize its own `PLANK-STATE.md`; this command must not use that adapter
+   for GSD planning, execution, review, verification, agents, or next-work routing.
 6. Push; watch CI. Exit when the triggering failure is green **and** open plan
    slices for that failure are done or deferred on the issue.
 7. Any args after `/plank-ci-refactor` are failure context (run URL, log excerpt) —

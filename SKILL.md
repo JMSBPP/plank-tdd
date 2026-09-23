@@ -1,6 +1,6 @@
 ---
 name: plank-tdd
-description: Type-driven Plank development — Brady type/define/refine, types.toml, IO(T), and BTT (.btt) + Bulloak-generated Foundry tests on every define. Use when writing or refining .plk types, implementing TokenFlow/IO/Xfer/View effects, or when the user runs /plank-type, /plank-define, or /plank-refine.
+description: Type-driven Plank development — Brady type/define/refine, types.toml, IO(T), BTT (.btt) + Bulloak-generated Foundry tests on every define, and CI-failure continuous refactor via /plank-ci-refactor + /request-refactor-plan. Use when writing or refining .plk types, implementing TokenFlow/IO/Xfer/View effects, fixing Plank-related CI failures, or when the user runs /plank-type, /plank-define, /plank-refine, or /plank-ci-refactor.
 ---
 
 # Plank TDD (type → define → refine)
@@ -8,6 +8,7 @@ description: Type-driven Plank development — Brady type/define/refine, types.t
 Hybrid of Brady **type, define, refine** and vertical behavioral TDD. Algebra leads. Side effects go through **IO(T)**, never void. **Heavy AskQuestions** — do not invent the algebra.
 
 Slash commands select the phase: `/plank-type`, `/plank-define`, `/plank-refine`.
+CI failure → `/plank-ci-refactor` (mission/policy: [AGENTS.md](AGENTS.md)).
 
 ## Quick start
 
@@ -49,8 +50,27 @@ Ask **one** question at a time. Cover at least:
 | `/plank-type` | Type | Std search, note, `types.toml`, signatures, holes. No bodies. |
 | `/plank-define` | Define | Fill holes for **one** behavior; write `.btt`; Bulloak generates the suite |
 | `/plank-refine` | Refine | Tighten types/laws; drop unused modules; set `refined = true` |
+| `/plank-ci-refactor` | CI loop | Explicit CI failure only → `/request-refactor-plan` → slices → push → watch |
 
 Do not jump to define/refine until the current phase’s gate is approved.
+
+## CI loop (`/plank-ci-refactor`)
+
+Mission and full policy: [AGENTS.md](AGENTS.md). Summary:
+
+1. **Trigger only** on an explicit CI failure / pasted failed log (not routine type work).
+2. Capture failing job/step (`gh run view --log-failed` or paste). Failing-step owns;
+   if cross-cutting with Idris, keep one plan issue and may call `idris-tdd` for sibling
+   slices (or hand off to `/idris-ci-refactor` when the primary failure is Idris).
+3. **Always** open/update a plan via `/request-refactor-plan` before code. Testing
+   Decisions = named CI jobs/steps; success = green run URL; no local forge as
+   authority unless host `AGENTS.md` allows it.
+4. Execute slices with `/plank-define` / `/plank-refine` (and `/plank-type` when needed).
+5. Workflow YAML / cache / image optimizations are in scope: cite GitHub Actions docs,
+   try on a branch/PR, measure wall-clock; never silently change `develop-gate`
+   required checks. Speculative opts are their own plan slices.
+6. **Exit** when the triggering run is green and plan slices for that failure are done
+   or deferred — no drive-by build-time hunting beyond the plan.
 
 ## Type file layout (Plank host)
 
@@ -64,4 +84,5 @@ Do not jump to define/refine until the current phase’s gate is approved.
 
 - Std-first + IO pattern, kinds, `types.toml`, BTT/Bulloak: [REFERENCE.md](REFERENCE.md)
 - LaTeX / IO / `.btt` templates: [EXAMPLES.md](EXAMPLES.md)
-- Sibling skills: `idris-tdd` (spec notes), `tdd` (vertical slices), type-driven-development (invariants before impl)
+- Mission / CI policy: [AGENTS.md](AGENTS.md)
+- Sibling skills: `idris-tdd` (spec notes + `/idris-ci-refactor`), `request-refactor-plan`, `tdd` (vertical slices), type-driven-development (invariants before impl)

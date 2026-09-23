@@ -153,6 +153,7 @@ Mission and full policy: [AGENTS.md](AGENTS.md). Summary:
 ## Details
 
 - Std-first + IO pattern, kinds, `types.toml`, BTT/Bulloak: [REFERENCE.md](REFERENCE.md)
+- GitHub PR review from markers: [REFERENCE.md](REFERENCE.md#github-pr-review-from-markers)
 - LaTeX / IO / `.btt` templates: [EXAMPLES.md](EXAMPLES.md)
 - Mission / CI policy: [AGENTS.md](AGENTS.md)
-- Sibling skills: `idris-tdd` (spec notes + `/idris-ci-refactor`), `request-refactor-plan`, `tdd` (vertical slices), type-driven-development (invariants before impl)
+- Sibling skills: `idris-tdd` (spec notes + `/idris-ci-refactor`), `request-refactor-plan`, `tdd` (vertical slices), `receiving-code-review`, type-driven-development (invariants before impl)

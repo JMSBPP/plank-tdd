@@ -1,6 +1,6 @@
 ---
 name: plank-tdd
-description: Type-driven Plank development — Brady type/define/refine, types.toml, IO(T), BTT (.btt) + Bulloak-generated Foundry tests on every define, and CI-failure continuous refactor via /plank-ci-refactor + /request-refactor-plan. Use when writing or refining .plk types, implementing TokenFlow/IO/Xfer/View effects, fixing Plank-related CI failures, or when the user runs /plank-type, /plank-define, /plank-refine, or /plank-ci-refactor.
+description: Type-driven Plank development — Brady type/define/refine, types.toml, IO(T), BTT (.btt) + Bulloak-generated Foundry tests on every define, state-only GSD progress reporting via /plank-progress, and CI-failure continuous refactor via /plank-ci-refactor + /request-refactor-plan. Use when writing or refining .plk types, implementing TokenFlow/IO/Xfer/View effects, checking Plank slice progress, fixing Plank-related CI failures, or when the user runs /plank-type, /plank-define, /plank-refine, /plank-progress, or /plank-ci-refactor.
 ---
 
 # Plank TDD (type → define → refine)
@@ -47,6 +47,21 @@ Hard boundary — the adapter MUST NOT:
 If no approved plan is decomposed into child slices, run Plank TDD normally without
 creating GSD tracking state.
 
+### `/plank-progress`
+
+`/plank-progress` reuses the **reporting** portion of `/gsd-progress` over the
+allowed state files, then stops. It reports GSD project context plus the Plank
+slice ledger and may reconcile summaries from durable issue, commit, PR, and CI
+evidence.
+
+It never invokes `/gsd-progress --next`, `/gsd-progress --do`, or any GSD
+route. It cannot choose or execute the next action. "Next" in its output means
+the next child already ordered by the approved plan, not a dispatch decision.
+
+A bookkeeping-only reconciliation commit does not reopen a completed
+implementation slice when it changes only `.planning/**`; retain the accepted
+implementation commit and host-authoritative CI URL as completion evidence.
+
 ## Quick start
 
 1. If the approved plan has child slices, initialize/sync the state-only GSD phase.
@@ -90,6 +105,7 @@ Ask **one** question at a time. Cover at least:
 | `/plank-type` | Type | Std search, note, `types.toml`, signatures, holes. No bodies. |
 | `/plank-define` | Define | Fill holes for **one** behavior; write `.btt`; Bulloak suite; **update type note** (math headings + laws for that op) |
 | `/plank-refine` | Refine | Tighten types/laws; drop unused modules; set `refined = true` |
+| `/plank-progress` | State report | Report/reconcile approved Plank child state using GSD files; never route or execute |
 | `/plank-ci-refactor` | CI loop | Explicit CI failure only → `/request-refactor-plan` → slices → push → watch |
 
 Do not jump to define/refine until the current phase’s gate is approved.

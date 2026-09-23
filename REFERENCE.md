@@ -407,3 +407,50 @@ Never use this adapter to:
 - select, reorder, decompose, approve, execute, or validate Plank work;
 - replace the approved plan, Plank command rules, AskQuestion approvals,
   BTT/Bulloak evidence, or host CI gate.
+
+### `/plank-progress` report projection
+
+`/plank-progress` integrates with `/gsd-progress` by using its context and
+reporting model only:
+
+1. require `.planning/ROADMAP.md` and `.planning/STATE.md`;
+2. read GSD project/current-position context without mutating it;
+3. discover `.planning/phases/**/PLANK-STATE.md`;
+4. reconcile each ledger against repository and GitHub evidence;
+5. report recent Plank work, current slice states, blockers, and the next child
+   already fixed by the approved plan;
+6. stop.
+
+Never continue into `/gsd-progress` routing. Reject `--next`, `--do`,
+`--auto`, `--force`, `--converge`, and model/reviewer routing flags. A bare
+`next` request may be reported as plan order but must not dispatch anything.
+
+The report must distinguish:
+
+- **GSD project position** — read-only context from ROADMAP/STATE;
+- **Plank slice position** — status from `PLANK-STATE.md`;
+- **next approved child** — ordering already present in the approved plan;
+- **recommended command** — informational text only, never an invocation.
+
+#### Unrelated host roadmaps
+
+When a tracked Plank child does not belong to the milestone represented by the
+host ROADMAP:
+
+- do not allocate or renumber a milestone phase;
+- do not alter milestone counters, current phase, status, or next-phase fields;
+- add/update a non-numbered `## Plank tracking (state-only)` appendix;
+- store its ledger under
+  `.planning/phases/PLANK/<issue>-<slice>/PLANK-STATE.md`;
+- add a matching bounded summary in STATE without replacing GSD's current
+  position.
+
+This preserves GSD's milestone model while using its durable state tree.
+
+#### Reconciliation after completion
+
+A state-only commit that changes only `.planning/**` does not reopen a
+completed implementation slice. Preserve the implementation commit and the CI
+run that accepted it. Append a reconciliation entry naming the bookkeeping
+commit when known. Any source, test, spec, manifest, workflow, or harness
+change does reopen acceptance and requires a new `ci_pending` transition.
